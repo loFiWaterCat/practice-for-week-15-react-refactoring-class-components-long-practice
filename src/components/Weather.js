@@ -1,23 +1,18 @@
 import React from 'react';
 import { toQueryString } from '../utils';
+import { useState, useEffect } from 'react';
 
-class Weather extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        weather: null
-      };
-    }
+const Weather = () => {
+    const [weather, setWeather] = useState(null);
     
-    componentDidMount() {
-      navigator.geolocation.getCurrentPosition(
-        this.pollWeather,
-        (err) => console.log(err),
-        { timeout: 10000 }
-      );
-    }
+    useEffect( () => 
+        navigator.geolocation.getCurrentPosition(
+            pollWeather,
+            (err) => console.log(err),
+            { timeout: 10000 }
+        ), []);
 
-    pollWeather = async (location) => {
+    const pollWeather = async (location) => {
       let url = 'http://api.openweathermap.org/data/2.5/weather?';
 
       /* Remember that it's unsafe to expose your API key. (Note that pushing
@@ -29,8 +24,7 @@ class Weather extends React.Component {
       "process.env.<variable_name>". Make sure to .gitignore your .env file!
       Also remember to restart your server (i.e., re-run "npm start") whenever
       you change your .env file. */
-      const apiKey = '???';
-
+      const apiKey = process.env.REACT_APP_WEATHER_API
       const params = {
         lat: location.coords.latitude,
         lon: location.coords.longitude,
@@ -42,15 +36,13 @@ class Weather extends React.Component {
       const res = await fetch(url);
       if (res.ok) {
         const weather = await res.json();
-        this.setState({ weather });
+        setWeather(weather);
       }
       else {
         alert ("Check Weather API key!")
       }
     }
 
-  render() {
-    const weather = this.state.weather;
     let content = <div className='loading'>loading weather...</div>;
     
     if (weather) {
@@ -72,6 +64,5 @@ class Weather extends React.Component {
       </section>
     );
   }
-}
 
 export default Weather;
